@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Face Register</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+</head>
+
+<body>
+
+<h2>Face Registration</h2>
+
+<input type="text" id="id" placeholder="Enter ID"><br><br>
+<input type="text" id="name" placeholder="Enter Name"><br><br>
+
+<video id="video" width="320" height="240" autoplay muted playsinline></video><br><br>
+
+<button onclick="startCamera()">Start Camera</button>
+<button onclick="registerFace()">Register Face</button>
+
+<p id="status"></p>
+
+<script>
+const video = document.getElementById('video');
+const statusText = document.getElementById('status');
+
+let modelsLoaded = false;
+
+// ✅ Load Models
+async function loadModels() {
+  const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
+
+  await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+  modelsLoaded = true;
+  statusText.innerText = "Models Loaded";
+}
+
+// ✅ Start Camera
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" }
+    });
+    video.srcObject = stream;
+    statusText.innerText = "Camera Started";
+  } catch (err) {
+    alert("Camera Error: " + err.message);
+  }
+}
+
+// ✅ Register Face
+async function registerFace() {
+
+  const id = document.getElementById("id").value;
+  const name = document.getElementById("name").value;
+
+  const detection = await faceapi
+    .detectSingleFace(video)
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (!detection) {
+    alert("No face detected");
+    return;
+  }
+
+  const descriptor = Array.from(detection.descriptor);
+
+  // 🔗 SEND TO APPS SCRIPT
+  fetch("https://script.google.com/macros/s/AKfycbzKDRN4KTLWgTA4VIDrtP4c5K26lVJ34ucpsXUU3iEa-cADlnk6Up0lrOWJZr3wHA-i/exec", {
+    method: "POST",
+    body: JSON.stringify({ id, name, descriptor })
+  });
+
+  statusText.innerText = "Saved";
+}
+
+loadModels();
+</script>
+
+</body>
+</html>
