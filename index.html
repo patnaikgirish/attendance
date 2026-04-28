@@ -36,10 +36,9 @@ let modelsLoaded = false;
 // ✅ Load Models (Stable CDN)
 async function loadModels() {
 
-  const MODEL_URL = "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights";
+  const MODEL_URL = "./models";
 
   try {
-
     statusText.innerText = "Loading models...";
 
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
@@ -52,7 +51,7 @@ async function loadModels() {
   } catch (e) {
     console.error("Model Error:", e);
     statusText.innerText = "Model Load Failed ❌";
-    alert("Model failed. Check internet or try again.");
+    alert("Model loading failed. Check console.");
   }
 }
 
