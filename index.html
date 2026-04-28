@@ -69,7 +69,7 @@ async function registerFace() {
   const descriptor = Array.from(detection.descriptor);
 
   // 🔗 SEND TO APPS SCRIPT
-  fetch("https://script.google.com/macros/s/AKfycbzKDRN4KTLWgTA4VIDrtP4c5K26lVJ34ucpsXUU3iEa-cADlnk6Up0lrOWJZr3wHA-i/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyx6xKAYcEKtZoztbiIDVHl78mTxxSxYl2SgTCvyY5_1qhZyMR3JvYRY-_NoM141Dmy/exec", {
     method: "POST",
     body: JSON.stringify({ id, name, descriptor })
   });
