@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Face Register</title>
+  <title>Face Registration</title>
+
+  <!-- Stable face-api -->
   <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+
+  <style>
+    body { text-align:center; font-family: Arial; }
+    video { border:1px solid black; border-radius:10px; }
+    button { padding:10px; margin:10px; }
+  </style>
 </head>
 
 <body>
@@ -12,12 +20,12 @@
 <input type="text" id="id" placeholder="Enter ID"><br><br>
 <input type="text" id="name" placeholder="Enter Name"><br><br>
 
-<video id="video" width="320" height="240" autoplay muted playsinline></video><br><br>
+<video id="video" width="320" height="240" autoplay muted playsinline></video><br>
 
 <button onclick="startCamera()">Start Camera</button>
 <button onclick="registerFace()">Register Face</button>
 
-<p id="status"></p>
+<p id="status">Initializing...</p>
 
 <script>
 const video = document.getElementById('video');
@@ -25,27 +33,47 @@ const statusText = document.getElementById('status');
 
 let modelsLoaded = false;
 
-// ✅ Load Models
+// ✅ Load Models (Stable CDN)
 async function loadModels() {
+
   const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
 
-  await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+  try {
+    statusText.innerText = "Loading models... (5-10 sec)";
 
-  modelsLoaded = true;
-  statusText.innerText = "Models Loaded";
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+    modelsLoaded = true;
+    statusText.innerText = "Models Loaded ✅";
+
+    console.log("Models loaded successfully");
+
+  } catch (e) {
+    console.error("Model Load Error:", e);
+    statusText.innerText = "Model Load Failed ❌";
+    alert("Model loading failed. Check internet.");
+  }
 }
 
-// ✅ Start Camera
+// ✅ Start Camera (Button click required)
 async function startCamera() {
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" }
+      video: { facingMode: "user" },
+      audio: false
     });
+
     video.srcObject = stream;
-    statusText.innerText = "Camera Started";
+    statusText.innerText = "Camera Started ✅";
+
+    console.log("Camera started");
+
   } catch (err) {
+    console.error("Camera error:", err);
+    statusText.innerText = "Camera Error ❌";
     alert("Camera Error: " + err.message);
   }
 }
@@ -53,31 +81,65 @@ async function startCamera() {
 // ✅ Register Face
 async function registerFace() {
 
+  console.log("Register button clicked");
+
   const id = document.getElementById("id").value;
   const name = document.getElementById("name").value;
 
-  const detection = await faceapi
-    .detectSingleFace(video)
-    .withFaceLandmarks()
-    .withFaceDescriptor();
-
-  if (!detection) {
-    alert("No face detected");
+  if (!id || !name) {
+    alert("Enter ID and Name");
     return;
   }
 
-  const descriptor = Array.from(detection.descriptor);
+  if (!modelsLoaded) {
+    alert("Wait! Models still loading...");
+    return;
+  }
 
-  // 🔗 SEND TO APPS SCRIPT
-  fetch("https://script.google.com/macros/s/AKfycbyx6xKAYcEKtZoztbiIDVHl78mTxxSxYl2SgTCvyY5_1qhZyMR3JvYRY-_NoM141Dmy/exec", {
-    method: "POST",
-    body: JSON.stringify({ id, name, descriptor })
-  });
+  statusText.innerText = "Detecting face...";
 
-  statusText.innerText = "Saved";
+  try {
+
+    const detection = await faceapi
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    console.log("Detection:", detection);
+
+    if (!detection) {
+      alert("No face detected. Try better lighting.");
+      statusText.innerText = "Face not detected ❌";
+      return;
+    }
+
+    const descriptor = Array.from(detection.descriptor);
+
+    statusText.innerText = "Sending data...";
+
+    // 🔴 IMPORTANT: Replace this URL
+    const response = await fetch("https://script.google.com/macros/s/AKfycbz1BgvXIGURp6zIEkxqwWE-9Ikxg5YP4ABFD3jfMG9H88CZT6gy45dQBeePW2osIU-P/exec", {
+      method: "POST",
+      body: JSON.stringify({ id, name, descriptor })
+    });
+
+    const result = await response.text();
+
+    console.log("Server response:", result);
+
+    statusText.innerText = "Saved Successfully ✅";
+    alert("Face Registered!");
+
+  } catch (err) {
+    console.error("Error:", err);
+    statusText.innerText = "Error ❌";
+    alert("Error: " + err.message);
+  }
 }
 
+// Load models on start
 loadModels();
+
 </script>
 
 </body>
