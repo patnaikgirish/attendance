@@ -4,7 +4,7 @@
   <title>Face Registration</title>
 
   <!-- Stable face-api -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
   <style>
     body { text-align:center; font-family: Arial; }
@@ -36,10 +36,11 @@ let modelsLoaded = false;
 // ✅ Load Models (Stable CDN)
 async function loadModels() {
 
-  const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
+  const MODEL_URL = "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights";
 
   try {
-    statusText.innerText = "Loading models... (5-10 sec)";
+
+    statusText.innerText = "Loading models...";
 
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
     await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
@@ -48,12 +49,10 @@ async function loadModels() {
     modelsLoaded = true;
     statusText.innerText = "Models Loaded ✅";
 
-    console.log("Models loaded successfully");
-
   } catch (e) {
-    console.error("Model Load Error:", e);
+    console.error("Model Error:", e);
     statusText.innerText = "Model Load Failed ❌";
-    alert("Model loading failed. Check internet.");
+    alert("Model failed. Check internet or try again.");
   }
 }
 
