@@ -119,35 +119,27 @@ async function registerFace() {
 
     const descriptor = Array.from(detection.descriptor);
 statusText.innerText = "Sending data...";
-
-try {
-
-  await fetch("https://script.google.com/macros/s/AKfycbwMgr_G-eiLmYgPserujA2MMNkr0OjqInrkC6WofbotRf8oYrtDX0CLZgsiUtF41wWE/exec", {
-    method: "POST",
-    mode: "no-cors",
-    body: JSON.stringify({
-      id: id,
-      name: name,
-      descriptor: descriptor
-    })
-  });
-
-  // ✅ Clear status after success
+    // 🔴 IMPORTANT: Replace this URL
+    await fetch("https://script.google.com/macros/s/AKfycbwMgr_G-eiLmYgPserujA2MMNkr0OjqInrkC6WofbotRf8oYrtDX0CLZgsiUtF41wWE/exec", {
+  method: "POST",
+  mode: "no-cors",   // 🔥 THIS FIXES THE ERROR
+  body: JSON.stringify({
+    id: id,
+    name: name,
+    descriptor: descriptor
+  })
+});
+ // ✅ Clear status after success
   statusText.innerText = "Face Registered ✅";
+    
+alert("Face Registered Successfully");
 
-  alert("Face Registered Successfully");
+  } catch (err) {
+    console.error("Error:", err);
+    statusText.innerText = "Error ❌";
+    alert("Error: " + err.message);
+  }
 
-  // OPTIONAL: reset fields
-  document.getElementById("id").value = "";
-  document.getElementById("name").value = "";
-
-} catch (err) {
-
-  statusText.innerText = "Error ❌";
-  alert("Error sending data");
-
-}
-  
 }
 
 // Load models on start
