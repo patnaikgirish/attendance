@@ -134,13 +134,6 @@ async function registerFace() {
 
 alert("Face Registered Successfully");
 
-    const result = await response.text();
-
-    console.log("Server response:", result);
-
-    statusText.innerText = "Saved Successfully ✅";
-    alert("Face Registered!");
-
   } catch (err) {
     console.error("Error:", err);
     statusText.innerText = "Error ❌";
