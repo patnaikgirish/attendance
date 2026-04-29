@@ -122,13 +122,17 @@ async function registerFace() {
     statusText.innerText = "Sending data...";
 
     // 🔴 IMPORTANT: Replace this URL
-    const response = await fetch("https://script.google.com/macros/s/AKfycbxGxoBAkvn4o8t91ATO3kgpX4ZBG3h_xqDmkm3EiBGdLh17dg0VgrADOva9lQ5ev7In/exec", {
+    await fetch("YOUR_WEBAPP_URL", {
   method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ id, name, descriptor })
+  mode: "no-cors",   // 🔥 THIS FIXES THE ERROR
+  body: JSON.stringify({
+    id: id,
+    name: name,
+    descriptor: descriptor
+  })
 });
+
+alert("Face Registered Successfully");
 
     const result = await response.text();
 
