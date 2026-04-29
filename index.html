@@ -131,7 +131,9 @@ async function registerFace() {
     descriptor: descriptor
   })
 });
-
+ // ✅ Clear status after success
+  statusText.innerText = "Face Registered ✅";
+    
 alert("Face Registered Successfully");
 
   } catch (err) {
